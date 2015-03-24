@@ -7,11 +7,12 @@ namespace VendingMachine
 {
     public class VendingMachine
     {
-        public const int _priceOfCan = 50;
-        private const int _capacity = 25;
+        public const int PriceOfCan = 50;
+		private const int Capacity = 25;
         private int _inventory;
-        private bool _isThreadSafe = true;
+		private bool isThreadSafe = true;
 
+		#region Mock Factory
         public static VendingMachine CreateMock(int customCapacity)
         {
             return new VendingMachine(customCapacity);
@@ -22,11 +23,6 @@ namespace VendingMachine
             return new VendingMachine(false, customCapcity);
         }
 
-        public VendingMachine()
-        {
-            _inventory = _capacity;
-        }
-
         private VendingMachine(int capacity)
         {
             _inventory = capacity;
@@ -34,19 +30,26 @@ namespace VendingMachine
 
         private VendingMachine(bool isThreadSafe, int capacity) : this(capacity)
         {
-            _isThreadSafe = isThreadSafe;
+            isThreadSafe = isThreadSafe;
         }
+		#endregion
+
+		public VendingMachine()
+		{
+			_inventory = Capacity;
+		}
 
         public void BuyCan(CashCard cashCard)
         {
             if (isEmpty())
                 throw new VendingMachineEmptyException();
 
-            if (!cashCard.HasSufficientFundsFor(_priceOfCan))
+            if (!cashCard.HasSufficientFundsFor(PriceOfCan))
                 throw new InsufficientFundsException();
 
-            cashCard.Deduct(_priceOfCan);
-            if (_isThreadSafe)
+            cashCard.Deduct(PriceOfCan);
+
+            if (isThreadSafe)
                 Interlocked.Decrement(ref _inventory);
             else
                 _inventory--;

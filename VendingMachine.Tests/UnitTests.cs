@@ -9,63 +9,63 @@ namespace VendingMachine.Tests
     [TestFixture]
     public class UnitTests
     {
-        private VendingMachine _vendingMachine;
-        private CashCard _cashCard, _emptyCard;
+		private VendingMachine vendingMachine;
+		private CashCard cashCard, emptyCard;
 
         [SetUp]
         public void Setup()
         {
-            _vendingMachine = new VendingMachine();
-            _cashCard = new CashCard(10000);
-            _emptyCard = new CashCard(0);
+            vendingMachine = new VendingMachine();
+            cashCard = new CashCard(10000);
+            emptyCard = new CashCard(0);
         }
 
         [Test]
         public void VendingMachineHasAnInitialInventoryOf25()
         {
-            Assert.AreEqual(25, _vendingMachine.Inventory);
+            Assert.AreEqual(25, vendingMachine.Inventory);
         }
 
         [Test]
         public void VendingMachineCanVendUpTo25Cans()
         {
             foreach (var i in Enumerable.Range(0, 25))
-                _vendingMachine.BuyCan(_cashCard);
+                vendingMachine.BuyCan(cashCard);
         }
 
         [Test, ExpectedException(typeof(VendingMachineEmptyException))]
         public void VendingMachineCannotVendMoreThan25Cans()
         {
             foreach(var i in Enumerable.Range(0, 26))
-                _vendingMachine.BuyCan(_cashCard);
+                vendingMachine.BuyCan(cashCard);
         }
 
         [Test]
         public void VendingMachineHasBuyCanMethodWhichTakesCashCard()
         {
-            _vendingMachine.BuyCan(_cashCard);
+            vendingMachine.BuyCan(cashCard);
         }
 
         [Test]
         public void VendingMachineInventoryDecreasesWhenCanIsBought()
         {
-            var initial = _vendingMachine.Inventory;
-            _vendingMachine.BuyCan(_cashCard);
-            Assert.AreEqual(initial - 1, _vendingMachine.Inventory);
+            var initial = vendingMachine.Inventory;
+            vendingMachine.BuyCan(cashCard);
+            Assert.AreEqual(initial - 1, vendingMachine.Inventory);
         }
 
         [Test]
         public void WhenIBuyACanFromVendingMachine50pIsDeductedFromMyCashCardBalance()
         {
-            var initial = _cashCard.Balance;
-            _vendingMachine.BuyCan(_cashCard);
-            Assert.AreEqual(initial - 50, _cashCard.Balance);
+            var initial = cashCard.Balance;
+            vendingMachine.BuyCan(cashCard);
+            Assert.AreEqual(initial - 50, cashCard.Balance);
         }
 
         [Test, ExpectedException(typeof(InsufficientFundsException))]
         public void VendingMachineWillNotVendIfCardDoesNotHaveSufficientFunds()
         {
-            _vendingMachine.BuyCan(_emptyCard);
+            vendingMachine.BuyCan(emptyCard);
         }
 
         [Test]
@@ -90,10 +90,10 @@ namespace VendingMachine.Tests
         public void VendingMachineBuyCanIsThreadSafe()
         {
             var _card = new CashCard(500000);
-            _vendingMachine = VendingMachine.CreateMock(10000);
-            Action<int> buy = x => { _vendingMachine.BuyCan(_card); };
+            vendingMachine = VendingMachine.CreateMock(10000);
+            Action<int> buy = x => { vendingMachine.BuyCan(_card); };
             Parallel.For(0, 10000, buy);
-            Assert.AreEqual(0, _vendingMachine.Inventory);
+            Assert.AreEqual(0, vendingMachine.Inventory);
         }
 
         [Test]
@@ -118,10 +118,10 @@ namespace VendingMachine.Tests
         public void VendingMachineBuyCanNonThreadSafe()
         {
             var _card = new CashCard(500000);
-            _vendingMachine = VendingMachine.CreateNonThreadSafeMock(10000);
-            Action<int> buy = x => { _vendingMachine.BuyCan(_card); };
+            vendingMachine = VendingMachine.CreateNonThreadSafeMock(10000);
+            Action<int> buy = x => { vendingMachine.BuyCan(_card); };
             Parallel.For(0, 10000, buy);
-            Assert.AreNotEqual(0, _vendingMachine.Inventory);
+            Assert.AreNotEqual(0, vendingMachine.Inventory);
         }
     }
 }

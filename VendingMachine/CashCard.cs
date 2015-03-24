@@ -9,23 +9,25 @@ namespace VendingMachine
     public class CashCard
     {
         private int _balance;
-        private bool _isThreadSafe = true;
+		private bool isThreadSafe = true;
 
+		#region Mock Factory
         public static CashCard CreateNonThreadSafeMock(int amount)
         {
             return new CashCard(false, amount);
         }
 
+		private CashCard(bool isThreadSafe, int amount) : this(amount)
+		{
+			isThreadSafe = isThreadSafe;
+		}
+		#endregion
+
         public CashCard(int amount)
         {
             _balance = amount;
         }
-
-        private CashCard(bool isThreadSafe, int amount) : this(amount)
-        {
-            _isThreadSafe = isThreadSafe;
-        }
-
+			
         public int Balance 
         { 
             get { return Thread.VolatileRead(ref _balance); } 
@@ -38,7 +40,7 @@ namespace VendingMachine
 
         public void TopUp(int amount)
         {
-            if (_isThreadSafe)
+            if (isThreadSafe)
                 Interlocked.Add(ref _balance, amount);
             else
                 _balance += amount;
@@ -49,7 +51,7 @@ namespace VendingMachine
             if (!HasSufficientFundsFor(amount))
                 return;
 
-            if (_isThreadSafe)
+            if (isThreadSafe)
                 Interlocked.Add(ref _balance, -amount);
             else
                 _balance -= amount;
